@@ -13,8 +13,15 @@ class InferlessPythonModel:
             device_map="cuda:0",
         )
 
-    def infer(self, inputs, tstamps: bool = False):
+    def infer(self, inputs):
         audio_url = inputs["audio_url"]
+
+        # Managing timestamps
+        if inputs["timestamps"]:
+            tstamps = inputs["timestamps"]
+        else:
+            tstamps = False
+
         pipeline_output = self.generator(audio_url, return_timestamps=tstamps)
         if tstamps:
             return {"transcribed_output": pipeline_output["text"], "timestamps": pipeline_output["timestamp"]}
