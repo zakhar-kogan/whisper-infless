@@ -1,1 +1,1 @@
-# whisper-large-v3
+# whisper-large-v2
