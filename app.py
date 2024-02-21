@@ -16,17 +16,8 @@ class InferlessPythonModel:
     def infer(self, inputs):
         audio_url = inputs["audio_url"]
 
-        # Managing timestamps
-        if inputs["timestamps"] != None:
-            tstamps = inputs["timestamps"]
-        else:
-            tstamps = False
-
-        pipeline_output = self.generator(audio_url, return_timestamps=tstamps)
-        if tstamps:
-            return {"transcribed_output": pipeline_output["text"], "timestamps": pipeline_output["timestamp"]}
-        else:
-            return {"transcribed_output": pipeline_output["text"] }
+        pipeline_output = self.generator(audio_url)
+        return {"transcribed_output": pipeline_output["text"] }
 
     def finalize(self):
         self.generator = None
