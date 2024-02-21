@@ -17,7 +17,7 @@ class InferlessPythonModel:
         audio_url = inputs["audio_url"]
 
         # Managing timestamps
-        if inputs["timestamps"]:
+        if inputs["timestamps"] != None:
             tstamps = inputs["timestamps"]
         else:
             tstamps = False
