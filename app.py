@@ -35,9 +35,10 @@ class InferlessPythonModel:
         )
 
     def infer(self, inputs):
-        audio_url = self.convert_to_mp3(inputs["audio_url"])
+        audio_url = inputs["audio_url"]
+        new_url = self.convert_to_mp3(audio_url)
 
-        pipeline_output = self.generator(audio_url)
+        pipeline_output = self.generator(new_url)
         return {"transcribed_output": pipeline_output["text"] }
 
     def finalize(self):
