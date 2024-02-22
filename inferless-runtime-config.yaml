@@ -7,3 +7,4 @@ build:
     - "transformers"
     - "accelerate"
     - "torch"
+    - "pydub"
