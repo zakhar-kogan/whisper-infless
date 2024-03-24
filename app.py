@@ -3,6 +3,8 @@ import numpy as np
 import torch
 from transformers import pipeline
 
+import requests
+
 from pydub import AudioSegment
 
 class InferlessPythonModel:
@@ -15,6 +17,31 @@ class InferlessPythonModel:
     Attributes:
         generator: The automatic speech recognition pipeline generator.
     """
+
+    def download_file(self, url):
+        """
+        Downloads a file from the given URL and saves it locally.
+
+        Args:
+            url (str): The URL of the file to download.
+
+        Returns:
+            str: The filename of the downloaded file.
+
+        Raises:
+            requests.HTTPError: If the download request fails.
+        """
+        local_filename = url.split('/')[-1]
+        # NOTE the stream=True parameter below
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            with open(local_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192): 
+                    # If you have chunk encoded response uncomment if
+                    # and set chunk_size parameter to None.
+                    #if chunk: 
+                    f.write(chunk)
+        return local_filename
 
     def convert_to_mp3(self, file_path):
         """
@@ -33,13 +60,10 @@ class InferlessPythonModel:
             # Load the audio file
             audio = AudioSegment.from_file(file_path, format=file_extension)
 
-            # Define the new file path
-            new_file_path = file_path.rsplit(".", 1)[0] + ".mp3"
-
             # Export the audio file in MP3 format
-            pth = audio.export(new_file_path, format="mp3")
+            audio.export("output.mp3", format="mp3")
 
-            return new_file_path
+            return "output.mp3"
 
         # If the file is already in MP3 format, return the original file path
         return file_path
@@ -71,9 +95,10 @@ class InferlessPythonModel:
             dict: A dictionary containing the transcribed output.
         """
         audio_url = inputs["audio_url"]
-        new_url = self.convert_to_mp3(audio_url)
+        local = self.download_file(audio_url)
+        file = self.convert_to_mp3(local)
 
-        pipeline_output = self.generator(new_url)
+        pipeline_output = self.generator(file)
         return {"transcribed_output": pipeline_output["text"]}
 
     def finalize(self):
