@@ -6,6 +6,7 @@ from transformers import pipeline
 import requests
 
 from pydub import AudioSegment
+import subprocess
 
 class InferlessPythonModel:
     """
@@ -44,29 +45,33 @@ class InferlessPythonModel:
         return local_filename
 
     def convert_to_mp3(self, file_path):
-        """
-        Convert an audio file to MP3 format.
+            """
+            Convert an audio file to MP3 format.
 
-        Args:
-            file_path (str): The path to the audio file.
+            Args:
+                file_path (str): The path to the audio file.
 
-        Returns:
-            str: The path to the converted MP3 file.
-        """
-        # Check the file extension
-        file_extension = file_path.split(".")[-1]
+            Returns:
+                str: The path to the converted MP3 file.
+            """
+            # Check the file extension
+            file_extension = file_path.split(".")[-1]
 
-        if file_extension.lower() not in ["mp3", "wav", "flac"]:
-            # Load the audio file
-            audio = AudioSegment.from_file(file_path, format=file_extension)
+            if file_extension.lower() not in ["mp3", "wav", "flac"]:
 
-            # Export the audio file in MP3 format
-            audio.export("output.mp3", format="mp3")
+                # Convert oga to wav using ffmpeg
+                subprocess.run(['ffmpeg', '-i', file_path, 'temp.wav'])
 
-            return "output.mp3"
+                # Load the audio file
+                audio = AudioSegment.from_file('temp.wav', format='wav')
+                subprocess.run(['rm', 'temp.wav'])
+                # Export the audio file in MP3 format
+                audio.export("output.mp3", format="mp3")
 
-        # If the file is already in MP3 format, return the original file path
-        return file_path
+                return "output.mp3"
+
+            # If the file is already in MP3 format, return the original file path
+            return file_path
 
     def initialize(self):
         """
